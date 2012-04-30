@@ -1,33 +1,58 @@
 <script type="text/javascript">
+/*
     // http://120403-1305-dot-latest-dot-project-slingshot-hr.appspot.com/cors/fowl/sprite_sheets/INGAME_BIRDS.png
-    var SPRITE_SHEET_NAME = "sprite_sheets/INGAME_BIRDS.png";
-    var REMOTE_DIR = "cors/fowl/";
+    var SPRITE_SHEET_NAME = "INGAME_BIRDS";
+    var REMOTE_DIR = "cors/fowl/sprite_sheets/";
+    var LOCAL_SPRITE_DIR = chrome.extension.getURL("sprite_sheets");
+    var LOCAL_SPRITE_IMAGE_SRC = LOCAL_SPRITE_DIR + "/" + SPRITE_SHEET_NAME + ".png";
+    var REMOTE_SPRITE_MANIFEST_SRC = REMOTE_DIR + SPRITE_SHEET_NAME + ".json";
+    var GHOST_ASSET_DIR = "http://chrome.angrybirds.com/mlp_sprite_sheets/";
     
     var currentHost = null;
     chrome.extension.onRequest.addListener(
         function (request, sender, sendResponse) {
             if(request.hasOwnProperty("listenToHost")) {
-                var host = request.listenToHost;
-                
-                if(host != currentHost) {
-                    var remote_url = host + REMOTE_DIR + SPRITE_SHEET_NAME;
-                    
-                    chrome.webRequest.onBeforeRequest.addListener(
-                        function (info) {
-                            console.log("I hear that!", info, chrome.extension.getURL(SPRITE_SHEET_NAME))
-                            return {redirectUrl: info.url + "?lol"}
-                        },
-                        {urls: [remote_url]}
-                    );
-                    
-                    currentHost = host;
-                    console.log("Listening for URL " + remote_url);
-                }
+                listenToHost(request.listenToHost);
             }
         }
     );
     
-    var MANIFEST_URL = "http://chrome.angrybirds.com/manifest/fowl.manifest";
+    function get(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function (e) {
+            if(xhr.readyState == 4) {
+                callback(xhr.responseText);
+            }
+        }
+        xhr.open("GET", url, true);
+        xhr.send();
+    }
+    
+    function listenToHost(host) {
+        if(host == currentHost) return false;
+        
+        var source_url = host + REMOTE_SPRITE_MANIFEST_SRC;
+        var listen_url = GHOST_ASSET_DIR + SPRITE_SHEET_NAME + ".json";
+        get(source_url, function (manifest_text) {
+            var manifest_data = JSON.parse(manifest_text);
+            manifest_data.image = LOCAL_SPRITE_IMAGE_SRC;
+            var data_uri = "data:text/plain," + encodeURIComponent(JSON.stringify(manifest_data));
+            console.log(data_uri);
+            chrome.webRequest.onBeforeRequest.addListener(
+                function (info) {
+                    console.log("I hear that!", info);
+                    return {redirectUrl: data_uri};
+                },
+                {urls: [listen_url]},
+                ["blocking"]
+            );
+            console.log("I'm listening for " + listen_url);
+        });
+        
+        currentHost = host;
+    }
+    
+    /*var MANIFEST_URL = "http://chrome.angrybirds.com/manifest/fowl.manifest";
     
     function getURLSynchronously(url) {
         var xhr = new XMLHttpRequest();
@@ -70,10 +95,10 @@
     
     chrome.webRequest.onBeforeRequest.addListener(
         function (info) {
-            var data = encodeURIComponent(getPonifiedFowlManifest());
+            //var data = encodeURIComponent(getPonifiedFowlManifest());
             return {"redirectUrl": "data:text/plain," + data}
         },
         {urls: [MANIFEST_URL]},
         ["blocking"]
-    );
+    );*/
 </script>
