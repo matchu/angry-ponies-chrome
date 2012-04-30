@@ -16,8 +16,11 @@
     
     "permissions": [
         "*://chrome.angrybirds.com/",
-        "*://*.appspot.com/",
         "webRequest",
         "webRequestBlocking"
+    ],
+    
+    "web_accessible_resources": [
+        "sprite_sheets/INGAME_BIRDS.png"
     ]
 }

@@ -28,5 +28,5 @@
 
 (function () {
     var base = document.head.getElementsByTagName("base")[0];
-    base.href = "http://www.matchusian.com/mlp_sprite_sheets/";
+    base.href = "http://chrome.angrybirds.com/";
 })();
