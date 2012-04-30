@@ -21,6 +21,7 @@
     ],
     
     "web_accessible_resources": [
-        "sprite_sheets/INGAME_BIRDS.png"
+        "sprite_sheets/INGAME_BIRDS.png",
+        "sprite_sheets/INGAME_PIGS.png"
     ]
 }

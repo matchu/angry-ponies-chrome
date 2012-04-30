@@ -1,11 +1,17 @@
 <script type="text/javascript">
     // http://120403-1305-dot-latest-dot-project-slingshot-hr.appspot.com/cors/fowl/sprite_sheets/INGAME_BIRDS.png
-    var SPRITE_SHEET_NAME = "INGAME_BIRDS";
-    var REMOTE_DIR = "cors/fowl/sprite_sheets/";
+    var REMOTE_SPRITE_DIR = "http://chrome.angrybirds.com/cors/fowl/sprite_sheets/";
     var LOCAL_SPRITE_DIR = chrome.extension.getURL("sprite_sheets");
-    var LOCAL_SPRITE_URL = LOCAL_SPRITE_DIR + "/" + SPRITE_SHEET_NAME + ".png";
-    var REMOTE_HOST = "http://chrome.angrybirds.com/";
-    var REMOTE_SPRITE_URL = REMOTE_HOST + REMOTE_DIR + SPRITE_SHEET_NAME + ".png";
+    var SPRITE_SHEETS = ["INGAME_BIRDS", "INGAME_PIGS"];
+    var SPRITE_SHEET_REDIRECTS = {};
+    var sprite_sheet, local_url, remote_url;
+    for(var i = 0; i < SPRITE_SHEETS.length; i++) {
+        sprite_sheet = SPRITE_SHEETS[i];
+        local_url = LOCAL_SPRITE_DIR + "/" + sprite_sheet + ".png";
+        remote_url = REMOTE_SPRITE_DIR + sprite_sheet + ".png";
+        SPRITE_SHEET_REDIRECTS[remote_url] = local_url;
+    }
+    console.log(SPRITE_SHEET_REDIRECTS);
     
     //var LOCAL_SPRITE_URL = "http://www.matchusian.com/mlp_sprite_sheets/cors/fowl/sprite_sheets/INGAME_BIRDS.png"
     
@@ -104,13 +110,22 @@
         ["blocking"]
     );*/
     
-    chrome.webRequest.onBeforeRequest.addListener(
-        function (info) {
-            console.log("I hear that!", info.url, info);
-            return {redirectUrl: LOCAL_SPRITE_URL}
-        },
-        {urls: [REMOTE_SPRITE_URL]},
-        ["blocking"]
-    );
-    console.log("Listening for " + REMOTE_SPRITE_URL);
+    for(var remote_url in SPRITE_SHEET_REDIRECTS) {
+        if(!SPRITE_SHEET_REDIRECTS.hasOwnProperty(remote_url)) continue;
+        
+        // gotta do a dummy function here so that remote_url and local_url
+        // aren't bound to the variables that change on each iteration
+        // (otherwise, they'll all redirect to the last one)
+        (function (remote_url, local_url) {
+            chrome.webRequest.onBeforeRequest.addListener(
+                function (info) {
+                    console.log("I hear that!", info.url, local_url);
+                    return {redirectUrl: local_url}
+                },
+                {urls: [remote_url]},
+                ["blocking"]
+            );
+            console.log("Listening for " + remote_url);
+        })(remote_url, SPRITE_SHEET_REDIRECTS[remote_url]);
+    }
 </script>
