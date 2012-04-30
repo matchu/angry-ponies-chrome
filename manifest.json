@@ -1,0 +1,23 @@
+{
+    "name": "Angry Ponies",
+    "version": "0.1",
+    "manifest_version": 1,
+    
+    "description": "My-Little-Ponify the Angry Birds app",
+    
+    "background_page": "background.html",
+    
+    "content_scripts": [
+        {
+            "matches": ["*://chrome.angrybirds.com/"],
+            "js": ["analyze_game.js"]
+        }
+    ],
+    
+    "permissions": [
+        "*://chrome.angrybirds.com/",
+        "*://*.appspot.com/",
+        "webRequest",
+        "webRequestBlocking"
+    ]
+}

@@ -1,0 +1,79 @@
+<script type="text/javascript">
+    // http://120403-1305-dot-latest-dot-project-slingshot-hr.appspot.com/cors/fowl/sprite_sheets/INGAME_BIRDS.png
+    var SPRITE_SHEET_NAME = "sprite_sheets/INGAME_BIRDS.png";
+    var REMOTE_DIR = "cors/fowl/";
+    
+    var currentHost = null;
+    chrome.extension.onRequest.addListener(
+        function (request, sender, sendResponse) {
+            if(request.hasOwnProperty("listenToHost")) {
+                var host = request.listenToHost;
+                
+                if(host != currentHost) {
+                    var remote_url = host + REMOTE_DIR + SPRITE_SHEET_NAME;
+                    
+                    chrome.webRequest.onBeforeRequest.addListener(
+                        function (info) {
+                            console.log("I hear that!", info, chrome.extension.getURL(SPRITE_SHEET_NAME))
+                            return {redirectUrl: info.url + "?lol"}
+                        },
+                        {urls: [remote_url]}
+                    );
+                    
+                    currentHost = host;
+                    console.log("Listening for URL " + remote_url);
+                }
+            }
+        }
+    );
+    
+    var MANIFEST_URL = "http://chrome.angrybirds.com/manifest/fowl.manifest";
+    
+    function getURLSynchronously(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send();
+        return xhr.responseText;    
+    }
+    
+    function getFowlManifest() {
+        // We need to use a synchronous request here, since, to my knowledge,
+        // we can't mess with a request like this asynchronously. Sadface.
+        return getURLSynchronously(MANIFEST_URL + "?raw");
+    }
+    
+    var version = null;
+    function getExtensionVersion() {
+        if(!version) {
+            var url = chrome.extension.getURL("manifest.json");
+            var manifest_data = getURLSynchronously(url);
+            var manifest = JSON.parse(manifest_data);
+            version = manifest.version;
+        }
+        
+        return version;
+    }
+    
+    function getPonifiedFowlManifest() {
+        var original = getFowlManifest();
+        var lines = original.split("\n");
+        for(var i = 0; i < lines.length; i++) {
+            // Find the Unique id line, and add our version number to it,
+            // ensuring that we are also considered during caching.
+            if(lines[i].indexOf("# Unique id") == 0) {
+                lines[i] += ".MLP." + getExtensionVersion();
+                break;
+            }
+        }
+        return lines.join("\n");
+    }
+    
+    chrome.webRequest.onBeforeRequest.addListener(
+        function (info) {
+            var data = encodeURIComponent(getPonifiedFowlManifest());
+            return {"redirectUrl": "data:text/plain," + data}
+        },
+        {urls: [MANIFEST_URL]},
+        ["blocking"]
+    );
+</script>
