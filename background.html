@@ -1,5 +1,4 @@
 <script type="text/javascript">
-    // http://120403-1305-dot-latest-dot-project-slingshot-hr.appspot.com/cors/fowl/sprite_sheets/INGAME_BIRDS.png
     var REMOTE_SPRITE_DIR = "http://chrome.angrybirds.com/cors/fowl/sprite_sheets/";
     var LOCAL_SPRITE_DIR = chrome.extension.getURL("sprite_sheets");
     var SPRITE_SHEETS = ["INGAME_BIRDS", "INGAME_PIGS"];
@@ -12,103 +11,6 @@
         SPRITE_SHEET_REDIRECTS[remote_url] = local_url;
     }
     console.log(SPRITE_SHEET_REDIRECTS);
-    
-    //var LOCAL_SPRITE_URL = "http://www.matchusian.com/mlp_sprite_sheets/cors/fowl/sprite_sheets/INGAME_BIRDS.png"
-    
-    /*
-    var currentHost = null;
-    chrome.extension.onRequest.addListener(
-        function (request, sender, sendResponse) {
-            if(request.hasOwnProperty("listenToHost")) {
-                listenToHost(request.listenToHost);
-            }
-        }
-    );
-    
-    function get(url, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function (e) {
-            if(xhr.readyState == 4) {
-                callback(xhr.responseText);
-            }
-        }
-        xhr.open("GET", url, true);
-        xhr.send();
-    }
-    
-    function listenToHost(host) {
-        if(host == currentHost) return false;
-        
-        var source_url = host + REMOTE_SPRITE_MANIFEST_SRC;
-        var listen_url = GHOST_ASSET_DIR + SPRITE_SHEET_NAME + ".json";
-        get(source_url, function (manifest_text) {
-            var manifest_data = JSON.parse(manifest_text);
-            manifest_data.image = LOCAL_SPRITE_IMAGE_SRC;
-            var data_uri = "data:text/plain," + encodeURIComponent(JSON.stringify(manifest_data));
-            console.log(data_uri);
-            chrome.webRequest.onBeforeRequest.addListener(
-                function (info) {
-                    console.log("I hear that!", info);
-                    return {redirectUrl: data_uri};
-                },
-                {urls: [listen_url]},
-                ["blocking"]
-            );
-            console.log("I'm listening for " + listen_url);
-        });
-        
-        currentHost = host;
-    }
-    
-    /*var MANIFEST_URL = "http://chrome.angrybirds.com/manifest/fowl.manifest";
-    
-    function getURLSynchronously(url) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, false);
-        xhr.send();
-        return xhr.responseText;    
-    }
-    
-    function getFowlManifest() {
-        // We need to use a synchronous request here, since, to my knowledge,
-        // we can't mess with a request like this asynchronously. Sadface.
-        return getURLSynchronously(MANIFEST_URL + "?raw");
-    }
-    
-    var version = null;
-    function getExtensionVersion() {
-        if(!version) {
-            var url = chrome.extension.getURL("manifest.json");
-            var manifest_data = getURLSynchronously(url);
-            var manifest = JSON.parse(manifest_data);
-            version = manifest.version;
-        }
-        
-        return version;
-    }
-    
-    function getPonifiedFowlManifest() {
-        var original = getFowlManifest();
-        var lines = original.split("\n");
-        for(var i = 0; i < lines.length; i++) {
-            // Find the Unique id line, and add our version number to it,
-            // ensuring that we are also considered during caching.
-            if(lines[i].indexOf("# Unique id") == 0) {
-                lines[i] += ".MLP." + getExtensionVersion();
-                break;
-            }
-        }
-        return lines.join("\n");
-    }
-    
-    chrome.webRequest.onBeforeRequest.addListener(
-        function (info) {
-            //var data = encodeURIComponent(getPonifiedFowlManifest());
-            return {"redirectUrl": "data:text/plain," + data}
-        },
-        {urls: [MANIFEST_URL]},
-        ["blocking"]
-    );*/
     
     for(var remote_url in SPRITE_SHEET_REDIRECTS) {
         if(!SPRITE_SHEET_REDIRECTS.hasOwnProperty(remote_url)) continue;
